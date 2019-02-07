@@ -4,30 +4,30 @@
 
 🐳 Ocean Faucet Server to allow users to request Ocean tokens
 
----
+* * *
 
 **🐲🦑 THERE BE DRAGONS AND SQUIDS. This is in alpha state and you can expect running into problems. If you run into them, please open up [a new issue](https://github.com/oceanprotocol/faucet/issues). 🦑🐲**
 
----
+* * *
 
 ## Table of Contents
 
-  - [Prerequisites](#prerequisites)
-  - [Get Started](#get-started)
-      - [Configuration](#configuration)
-      - [Examples](#examples)
-  - [Contributing](#contributing)
-  - [License](#license)
+-   [Prerequisites](#prerequisites)
+-   [Get Started](#get-started)
+    -   [Configuration](#configuration)
+    -   [Examples](#examples)
+-   [Contributing](#contributing)
+-   [License](#license)
 
----
+* * *
 
 ## Prerequisites
 
-* Node v8.11.3 or superior
-* Mongodb (for development)
-* [Docker](https://www.docker.com/get-started)
-* [Docker Compose](https://docs.docker.com/compose/)
-* [Barge](https://github.com/oceanprotocol/barge) (To deploy a local Trilobite testnet)
+-   Node v8.11.3 or superior
+-   Mongodb (for development)
+-   [Docker](https://www.docker.com/get-started)
+-   [Docker Compose](https://docs.docker.com/compose/)
+-   [Barge](https://github.com/oceanprotocol/barge) (To deploy a local Trilobite testnet)
 
 ## Get Started
 
@@ -84,14 +84,14 @@ export default {
 Once Ocean tesnet is up and running, you can deploy the Faucet server using `docker-compose`:
 
 ```bash
-git clone https://github.com/santteegt/faucet
+git clone https://github.com/oceanprotocol/faucet
 cd faucet
 docker-compose up
 ```
 
 ### Examples
 
-A user can request Ocean tokens using the Faucet Server UI at [http://localhost:3001](http://localhost:3001) or the sending a request to the REST API:
+A user can request Ocean tokens using the Faucet Server UI at <http://localhost:3001> or the sending a request to the REST API:
  `wget --header=’Content-Type: application/json’ --post-data '{"address": "0x7E187af69973a66e049a15E763c97CB726765f87", "agent": "twitter"}' http://localhost:3001/faucet`
 
 Sample Request Body:
@@ -106,11 +106,11 @@ Sample Request Body:
 Sample Response Body
 
 ```
-200
-{
-    "success": true, // whether the tokens have been transferred successfully or not.
-    "message": <string> (X tokens have been transferred to your account xxxxxxx.  
-}
+    200
+    {
+        "success": true, // whether the tokens have been transferred successfully or not.
+        "message": <string> (X tokens have been transferred to your account xxxxxxx.  
+    }
 ```
 
 ## Development
@@ -119,8 +119,8 @@ To start development you need to:
 
 ```bash
 cd server
-npm i
-npm start dev
+npm install
+npm start watch
 ```
 
 ### Test
