@@ -1,5 +1,7 @@
 import path from 'path';
-require('dotenv').config({path: path.join(__dirname, '/.env')});
+require('dotenv').config({
+  path: path.join(__dirname, '/.env')
+});
 import fs from 'fs';
 import express from 'express';
 import expressValidator from 'express-validator';
@@ -9,14 +11,11 @@ import requestIp from 'request-ip';
 import net from 'net';
 import config from './config';
 import logger from './utils/logger';
-// import winston from 'winston';
-// import expressWinston from 'express-winston';
-// import winstonPapertrail from 'winston-papertrail';
 
 const app = express()
 
 app.use(cors())
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 app.use(requestIp.mw())
 app.use(expressValidator())

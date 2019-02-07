@@ -2,10 +2,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
 <script>
-	$(document).ready(function() {
-
-
-	    const modalLoading = '<div class="modal-dialog">\
+  $(document).ready(function() {
+    const modalLoading =
+      '<div class="modal-dialog">\
 	            <div class="modal-content">\
 	                <div class="modal-header">\
 	                    <h4 class="modal-title">Requesting Ocean tokens...</h4>\
@@ -19,46 +18,47 @@
 	                </div>\
 	            </div>\
    			</div>';
-	    $( "#pleaseWaitDialog" ).append(modalLoading);
+    $("#pleaseWaitDialog").append(modalLoading);
 
-		function showAndDismissAlert(type, alert, msg) {
-			const message = `<strong>${alert}</strong> ${msg}`
-		    var htmlAlert = `<div class="alert alert-${type}">${message}</div>`;
+    function showAndDismissAlert(type, alert, msg) {
+      const message = `<strong>${alert}</strong> ${msg}`
+      var htmlAlert = `<div class="alert alert-${type}">${message}</div>`;
+      $(".alertbox").append(htmlAlert);
+      $(".alertbox .alert").last().hide().fadeIn(200).delay(5000).fadeOut(1000, function() {
+        $(this).remove();
+      });
+    }
 
-		    $(".alertbox").append(htmlAlert);
-		    $(".alertbox .alert").last().hide().fadeIn(200).delay(5000).fadeOut(1000, function () { $(this).remove(); });
-		}
+    $("#address")[0].onkeyup = function() {
+      ($(this).val() === "") ? $('.btn.makeitrain').prop("disabled", true): $('.btn.makeitrain').prop("disabled", false);
+    };
 
-		$( "#address" )[0].onkeyup = function() {
-			($(this).val() === "") ? $('.btn.makeitrain').prop("disabled", true):$('.btn.makeitrain').prop("disabled", false);
-		};
+    $("#target").submit(function(event) {
+      $("#pleaseWaitDialog").modal('show');
+      event.preventDefault();
+      var reqData = {
+        address: $('#address').val(),
+        agent: undefined
+      };
 
-		$( "#target" ).submit(function( event ) {
-			$("#pleaseWaitDialog").modal('show');
-			event.preventDefault();
-		  	var reqData = {
-		  		address: $( '#address' ).val(),
-		  		agent: undefined
-		  	};
-
-		  	$.post( "/faucet", reqData).done(function(data) {
-		  		$("#pleaseWaitDialog").modal('hide');
-	  			showAndDismissAlert('success', 'Success!', data.message);
-	  			window.myInterval = setInterval(function() {
-	  				console.log('Waiting for trx confirmation...')
-		  			$.getJSON( `/trxHash?id=${data.record}`, function(data) {
-		  				if(data && data.statusCode == 200) {
-		  					showAndDismissAlert('success', 'ETH Transaction Hash', data.result.trxHash);
-		  					clearInterval(window.myInterval)
-		  				}
-		  			})
-		  		}, 5000)
-		  	}).fail(function(error) {
-		  		$("#pleaseWaitDialog").modal('hide');
-		  		const errors = error.responseJSON.errors;
-		  		const errorMsg = errors && errors.length > 0 ? errors[0].msg:error.responseJSON.message
-		  		showAndDismissAlert('danger', 'Error!', errorMsg);
-		  	});
-		});
-	})
+      $.post("/faucet", reqData).done(function(data) {
+        $("#pleaseWaitDialog").modal('hide');
+        showAndDismissAlert('success', 'Success!', data.message);
+        window.myInterval = setInterval(function() {
+          console.log('Waiting for trx confirmation...')
+          $.getJSON(`/trxHash?id=${data.record}`, function(data) {
+            if (data && data.statusCode == 200) {
+              showAndDismissAlert('success', 'ETH Transaction Hash', data.result.trxHash);
+              clearInterval(window.myInterval)
+            }
+          })
+        }, 5000)
+      }).fail(function(error) {
+        $("#pleaseWaitDialog").modal('hide');
+        const errors = error.responseJSON.errors;
+        const errorMsg = errors && errors.length > 0 ? errors[0].msg : error.responseJSON.message
+        showAndDismissAlert('danger', 'Error!', errorMsg);
+      });
+    });
+  })
 </script>
