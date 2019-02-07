@@ -17,3 +17,6 @@ COPY . .
 
 # Build server
 RUN npm run build
+
+# Start server
+CMD node ./dist/server
