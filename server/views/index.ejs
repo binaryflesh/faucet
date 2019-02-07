@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <% include partials/head %> 
+</head>
+<body>
+	<% include partials/header %> 
+	<div style='position: absolute; right: 10px; width: 50%' class="alertbox"></div>
+	<div class="container faucet">
+		<div class="py-5 px-3">
+			<form id="target" action="/" method="POST">
+				<div class="form-group">
+					<label for="address"><strong>Enter your testnet account address<strong></label>
+					<input type="text" class="form-control" id="address" placeholder="0x12345..." value="">
+				</div>
+				<button type="submit" class="btn btn-primary btn-lg makeitrain" disabled>Make it Rain</button>
+			</form>
+		</div>
+	</div>
+	<div class="container desc-text">
+		<div class="py-5 px-3">
+			<p class="text-center">This faucet server drips <%= faucetTokens %> Ocean Tokens and <%= faucetEth %> ETH every <%= faucetTimeSpan %> hours.<br />
+			Example request: wget <%= faucetURL %> <br /> <a href="/">API docs</a>
+			</p>
+		</div>
+	</div>
+	<div class="modal" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false" role="dialog"></div>
+</body>
+<% include partials/scripts %>
+</html>
