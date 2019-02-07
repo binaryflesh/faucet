@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node dist/server.js",
-    "build": "babel --source-maps --out-dir=dist ./",
+    "build": "rimraf ./dist && babel --out-dir ./dist --ignore node_modules ./",
     "watch": "nodemon server.js --exec babel-node --presets babel-preset-env",
     "test": "mocha --require babel-register --require tests/env.js --timeout 20000 tests/test*.js --exit",
     "coverage": "nyc --reporter=lcov --reporter=text-lcov npm test",
@@ -37,6 +37,7 @@
     "mongoose-timestamp": "^0.6.0",
     "request-ip": "^2.1.3",
     "require-reload": "^0.2.2",
+    "rimraf": "^2.6.3",
     "web3": "^1.0.0-beta.43"
   },
   "devDependencies": {
