@@ -1,25 +1,31 @@
-import mongoose from 'mongoose';
-import config from '../../config';
-import logger from '../logger';
+import mongoose from 'mongoose'
+import config from '../../config'
+import logger from '../logger'
 
 mongoose.Promise = global.Promise
-mongoose.set('useCreateIndex', true);
+mongoose.set('useCreateIndex', true)
 
-const connection = mongoose.connect(config.database.uri, { useNewUrlParser: true })
+const connection = mongoose.connect(config.database.uri, {
+    useNewUrlParser: true
+})
 
 connection
-  .then(db => {
-    logger.info(`Successfully connected to ${config.database.uri} MongoDB cluster in ${config.env} mode.`, );
-    return db;
-  })
-  .catch(err => {
-    if (err.message.code === 'ETIMEDOUT') {
-      logger.info('Attempting to re-establish database connection.');
-      mongoose.connect(config.database.uri, { useNewUrlParser: true });
-    } else {
-      logger.error('Error while attempting to connect to database:');
-      logger.error(err);
-    }
-  });
+    .then(db => {
+        logger.info(
+            `Successfully connected to ${
+                config.database.uri
+            } MongoDB cluster in ${config.env} mode.`
+        )
+        return db
+    })
+    .catch(err => {
+        if (err.message.code === 'ETIMEDOUT') {
+            logger.info('Attempting to re-establish database connection.')
+            mongoose.connect(config.database.uri, { useNewUrlParser: true })
+        } else {
+            logger.error('Error while attempting to connect to database:')
+            logger.error(err)
+        }
+    })
 
-export default connection;
+export default connection

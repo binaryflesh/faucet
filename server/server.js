@@ -1,21 +1,21 @@
-import path from 'path';
+import path from 'path'
+import fs from 'fs'
+import express from 'express'
+import expressValidator from 'express-validator'
+import cors from 'cors'
+import bodyParser from 'body-parser'
+import requestIp from 'request-ip'
+// import net from 'net'
+import config from './config'
+import logger from './utils/logger'
 require('dotenv').config({
-  path: path.join(__dirname, '/.env')
-});
-import fs from 'fs';
-import express from 'express';
-import expressValidator from 'express-validator';
-import cors from 'cors';
-import bodyParser from 'body-parser';
-import requestIp from 'request-ip';
-import net from 'net';
-import config from './config';
-import logger from './utils/logger';
+    path: path.join(__dirname, '/.env')
+})
 
 const app = express()
 
 app.use(cors())
-app.use(bodyParser.urlencoded({extended: false}))
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use(requestIp.mw())
 app.use(expressValidator())
@@ -27,20 +27,24 @@ app.set('view engine', 'ejs')
 app.use(express.static(path.join(__dirname, 'public')))
 
 const server = app.listen(config.server.port, err => {
-  if (err) {
-    logger.error(err)
-    process.exit(1)
-  }
+    if (err) {
+        logger.error(err)
+        process.exit(1)
+    }
 
-  require('./utils/db')
+    require('./utils/db')
 
-  fs.readdirSync(path.join(__dirname, 'routes')).map(file => {
-    require('./routes/' + file)(app)
-  })
+    /* eslint-disable security/detect-non-literal-fs-filename, security/detect-non-literal-require */
+    fs.readdirSync(path.join(__dirname, 'routes')).map(file => {
+        require('./routes/' + file)(app)
+    })
+    /* eslint-enable security/detect-non-literal-fs-filename, security/detect-non-literal-require */
 
-  logger.info(
-    `Ocean Faucet server is now running on port ${config.server.port} in ${config.env} mode`
-  )
+    logger.info(
+        `Ocean Faucet server is now running on port ${config.server.port} in ${
+            config.env
+        } mode`
+    )
 })
 
 module.exports = server
