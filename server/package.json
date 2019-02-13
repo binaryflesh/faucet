@@ -21,7 +21,7 @@
     "type": "git",
     "url": "git+https://github.com/oceanprotocol/faucet.git"
   },
-  "author": "",
+  "author": "Ocean Protocol <devops@oceanprotocol.com>",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/oceanprotocol/faucet/issues"
@@ -89,5 +89,11 @@
       "**/coverage/**"
     ],
     "all": true
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }

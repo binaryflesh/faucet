@@ -1,0 +1,29 @@
+language: node_js
+node_js: node
+
+services:
+  - mongodb
+  - docker
+
+install:
+  - npm install -g ganache-cli@~6.1.8
+  - cd server
+  - npm install
+
+before_script:
+  - ganache-cli --port 18545 > ganache-cli.log &
+  - git clone https://github.com/oceanprotocol/barge
+  - cd barge
+  - bash -x start_ocean.sh --latest --no-pleuston --local-nile-node 2>&1 > start_ocean.log &
+  - cd ..
+
+script:
+  - export ETH_PORT=18545; npm test
+  - npm run build
+
+notifications:
+  email: false
+
+cache:
+  directories:
+    - server/node_modules
