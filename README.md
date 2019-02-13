@@ -2,7 +2,11 @@
 
 <h1 align="center">Faucet Server</h1>
 
-🐳 Ocean Faucet Server to allow users to request Ocean tokens
+> 🐳 Ocean Faucet Server to allow users to request Ocean tokens
+
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-7b1173.svg?style=flat-square)](https://github.com/prettier/prettier)
+[![js oceanprotocol](https://img.shields.io/badge/js-oceanprotocol-7b1173.svg)](https://github.com/oceanprotocol/eslint-config-oceanprotocol)
+[![css bigchaindb](https://img.shields.io/badge/css-bigchaindb-39BA91.svg)](https://github.com/bigchaindb/stylelint-config-bigchaindb)
 
 * * *
 
@@ -10,14 +14,15 @@
 
 * * *
 
-## Table of Contents
-
--   [Prerequisites](#prerequisites)
--   [Get Started](#get-started)
-    -   [Configuration](#configuration)
-    -   [Examples](#examples)
--   [Contributing](#contributing)
--   [License](#license)
+- [Prerequisites](#prerequisites)
+- [Get Started](#get-started)
+  - [Configuration](#configuration)
+  - [Examples](#examples)
+- [Development](#development)
+  - [Test](#test)
+  - [Production build](#production-build)
+- [Contributing](#contributing)
+- [License](#license)
 
 * * *
 
@@ -99,7 +104,7 @@ Sample Request Body:
 ```js
 {
     "address": <string>,  //required
-    "agent": <string>, //optional, Possible values - server, twitter, telegram, gitter  
+    "agent": <string>, //optional, Possible values - server, twitter, telegram, gitter
 }
 ```
 
@@ -109,7 +114,7 @@ Sample Response Body
     200
     {
         "success": true, // whether the tokens have been transferred successfully or not.
-        "message": <string> (X tokens have been transferred to your account xxxxxxx.  
+        "message": <string> (X tokens have been transferred to your account xxxxxxx.
     }
 ```
 
