@@ -27,7 +27,7 @@ before_script:
   - npm build
 
 script:
-  - export ETH_PORT=18545
+  - ./scripts/wait_for_migration_and_extract_keeper_artifacts.sh
   - npm test
 
 notifications:
