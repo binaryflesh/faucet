@@ -1,11 +1,17 @@
 language: node_js
-node_js: node
+node_js:
+  - "10"
 
 services:
   - mongodb
   - docker
 
-install:
+cache:
+  directories:
+    - server/node_modules
+
+before_install:
+  - npm install -g npm
   - npm install -g ganache-cli@~6.1.8
   - cd server
   - npm install
@@ -21,12 +27,10 @@ before_script:
   - cd ..
 
 script:
-  - export ETH_PORT=18545; npm test
-  - npm run build
+  - export ETH_PORT=18545
+  - npm test
 
 notifications:
   email: false
 
-cache:
-  directories:
-    - server/node_modules
+
