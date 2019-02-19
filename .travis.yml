@@ -22,12 +22,12 @@ before_script:
   - export BRIZO_VERSION=v0.2.0
   - export AQUARIUS_VERSION=v0.1.8
   - bash -x start_ocean.sh --latest --no-brizo --no-pleuston --local-spree-node 2>&1 > start_ocean.log &
-  - cd ..
+  - cd server
   - npm install
 
 script:
   - export ETH_PORT=18545
-  - npm test
+  - npm run test
 
 notifications:
   email: false
