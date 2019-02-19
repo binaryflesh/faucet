@@ -16,7 +16,7 @@ The Ocean Faucet Server allows users to request Ocean Tokens and Ether for a par
 - [Get Started](#get-started)
   - [Configuration](#configuration)
   - [Deploy the Faucet Server](#deploy-the-faucet-server)
-  - [Examples](#examples)
+  - [Example](#example)
 - [Contributing](#contributing)
 - [License](#license)
 
