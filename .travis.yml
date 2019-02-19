@@ -24,11 +24,11 @@ before_script:
   - bash -x start_ocean.sh --latest --no-brizo --no-pleuston --local-spree-node 2>&1 > start_ocean.log &
   - cd ../server
   - npm install
-  - npm build
 
 script:
   - ./scripts/wait_for_migration_and_extract_keeper_artifacts.sh
   - npm test
+  - npm run build
 
 notifications:
   email: false
