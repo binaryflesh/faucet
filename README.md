@@ -4,6 +4,11 @@
 
 The Ocean Faucet Server allows users to request Ocean Tokens and Ether for a particular Ethereum network.
 
+[![Build Status](https://travis-ci.com/oceanprotocol/faucet&branch=master)](https://travis-ci.com/oceanprotocol/faucet)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-7b1173.svg?style=flat-square)](https://github.com/prettier/prettier)
+[![js oceanprotocol](https://img.shields.io/badge/js-oceanprotocol-7b1173.svg)](https://github.com/oceanprotocol/eslint-config-oceanprotocol)
+[![css bigchaindb](https://img.shields.io/badge/css-bigchaindb-39BA91.svg)](https://github.com/bigchaindb/stylelint-config-bigchaindb)
+
 * * *
 
 **🐲🦑 THERE BE DRAGONS AND SQUIDS. This is in alpha state and you can expect running into problems. If you run into them, please open up [a new issue](https://github.com/oceanprotocol/faucet/issues). 🦑🐲**
@@ -101,7 +106,7 @@ To request Ocean Tokens and Ether, a user can send an HTTP POST request to http:
 ```js
 {
     "address": <string>,  //required
-    "agent": <string>, //optional, Possible values - server, twitter, telegram, gitter  
+    "agent": <string>, //optional, Possible values - server, twitter, telegram, gitter
 }
 ```
 

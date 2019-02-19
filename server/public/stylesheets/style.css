@@ -24,11 +24,13 @@
 }
 
 @media (max-width: 640px) {
-  span.headerTitle {
-    font-size: 0.8rem;
-  }
+
+    /* stylelint-disable-next-line */
+    span.headerTitle {
+        font-size: .8rem;
+    }
 }
 
 .desc-text {
-  color: #b5b5b5 !important;
+    color: #b5b5b5 !important; /* stylelint-disable-line */
 }
