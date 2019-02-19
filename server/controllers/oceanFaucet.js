@@ -1,6 +1,7 @@
 /* eslint-disable prefer-promise-reject-errors */
 
 import { Ocean, Account } from '@oceanprotocol/squid'
+import Keeper from '@oceanprotocol/squid/dist/node/keeper/Keeper'
 import Faucet from '../models/faucet'
 import logger from '../utils/logger'
 import Web3Provider from '../utils/web3/Web3Provider'
@@ -73,10 +74,9 @@ const OceanFaucet = {
                                     reject
                                 )
                             } else {
-                                ocean.keeper.market
+                                faucetAddress
                                     .requestTokens(
-                                        config.oceanConfig.faucetTokens,
-                                        faucetAddress.id
+                                        config.oceanConfig.faucetTokens
                                     )
                                     .then(rs => {
                                         logger.log(
@@ -151,92 +151,95 @@ const OceanFaucet = {
         reject
     ) => {
         // sending Ocean tokens
-        ocean.keeper.token
-            .send('transfer', faucetAddress.id, [
-                requestAddress.id,
-                tokenAmount
-            ])
-            .then(rs => {
-                logger.log(
-                    `Success sending ${tokenAmount} OceanTokens to ${
-                        requestAddress.id
-                    }`
-                )
+        // TODO: replace when in squid-js
+        Keeper.getInstance().then(keeper => {
+            keeper.token.contract.methods
+                .transfer(requestAddress.id, tokenAmount)
+                .send({ from: faucetAddress.id })
+                .then(rs => {
+                    logger.log(
+                        `Success sending ${tokenAmount} OceanTokens to ${
+                            requestAddress.id
+                        }`
+                    )
 
-                faucet.save((error, record) => {
-                    if (error) {
-                        logger.log(error)
-                    }
+                    faucet.save((error, record) => {
+                        if (error) {
+                            logger.log(error)
+                        }
 
-                    // sending ETH
-                    web3.eth
-                        .sendTransaction({
-                            from: faucetAddress.id,
-                            to: requestAddress.id,
-                            value: ethAmount
-                        })
-                        .on('transactionHash', hash => {
-                            logger.log(`ETH transaction hash ${hash}`)
-                            const newData = {
-                                ethTrxHash: hash
-                            }
-                            Faucet.findOneAndUpdate(
-                                {
-                                    _id: record._id
-                                },
-                                newData,
-                                (err, rec) => {
-                                    if (err)
-                                        logger.log(
-                                            `Failed updating faucet record ${err}`
-                                        )
+                        // sending ETH
+                        web3.eth
+                            .sendTransaction({
+                                from: faucetAddress.id,
+                                to: requestAddress.id,
+                                value: ethAmount
+                            })
+                            .on('transactionHash', hash => {
+                                logger.log(`ETH transaction hash ${hash}`)
+                                const newData = {
+                                    ethTrxHash: hash
                                 }
-                            )
-                        })
-                        .on('error', err => {
-                            logger.log(`ETH transaction failed! ${err}`)
-                            const newData = {
-                                ethTrxHash: err
-                            }
-                            Faucet.findOneAndUpdate(
-                                {
-                                    _id: record._id
-                                },
-                                newData,
-                                (err, rec) => {
-                                    if (err)
-                                        logger.log(
-                                            `Failed updating faucet record ${err}`
-                                        )
+                                Faucet.findOneAndUpdate(
+                                    {
+                                        _id: record._id
+                                    },
+                                    newData,
+                                    (err, rec) => {
+                                        if (err)
+                                            logger.log(
+                                                `Failed updating faucet record ${err}`
+                                            )
+                                    }
+                                )
+                            })
+                            .on('error', err => {
+                                logger.log(`ETH transaction failed! ${err}`)
+                                const newData = {
+                                    ethTrxHash: err
                                 }
+                                Faucet.findOneAndUpdate(
+                                    {
+                                        _id: record._id
+                                    },
+                                    newData,
+                                    (err, rec) => {
+                                        if (err)
+                                            logger.log(
+                                                `Failed updating faucet record ${err}`
+                                            )
+                                    }
+                                )
+                            })
+                        requestAddress
+                            .getOceanBalance()
+                            .then(balance =>
+                                logger.log(
+                                    `Recipient Ocean Balance: ${balance}`
+                                )
                             )
-                        })
-                    requestAddress
-                        .getOceanBalance()
-                        .then(balance =>
-                            logger.log(`Recipient Ocean Balance: ${balance}`)
-                        )
-                        .catch(err => logger.error(err))
+                            .catch(err => logger.error(err))
 
-                    resolve({
-                        sucess: true,
-                        message: `${tokenAmount} Ocean Tokens and ${ethAmount /
-                            10 **
-                                18} ETH were successfully deposited into your account`,
-                        record: record._id
+                        resolve({
+                            sucess: true,
+                            message: `${tokenAmount} Ocean Tokens and ${ethAmount /
+                                10 **
+                                    18} ETH were successfully deposited into your account`,
+                            record: record._id
+                        })
                     })
                 })
-            })
-            .catch(err => {
-                const errorMsg = `Error while tryng to send tokens to ${
-                    requestAddress.id
-                }: ${err}`
-                logger.error(errorMsg)
-                reject({
-                    sucess: false,
-                    message: errorMsg
+                .catch(err => {
+                    const errorMsg = `Error while tryng to send tokens to ${
+                        requestAddress.id
+                    }: ${err}`
+                    logger.error(errorMsg)
+                    reject({
+                        sucess: false,
+                        message: errorMsg
+                    })
                 })
-            })
+        })
     },
 
     /**
