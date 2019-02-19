@@ -8,6 +8,7 @@
     "build": "rimraf ./dist && babel --out-dir ./dist --ignore node_modules ./",
     "watch": "nodemon server.js --exec babel-node --presets babel-preset-env",
     "test": "npm run lint && mocha --require babel-register --require tests/env.js --timeout 20000 tests/test*.js --exit",
+    "tests": "mocha --require babel-register --require tests/env.js --timeout 20000 tests/test*.js --exit",
     "coverage": "nyc --reporter=lcov --reporter=text-lcov npm test",
     "cov-report": "nyc report",
     "format:js": "prettier --write '**/*.{js,jsx}'",
@@ -28,7 +29,7 @@
   },
   "homepage": "https://github.com/oceanprotocol/faucet#README",
   "dependencies": {
-    "@oceanprotocol/squid": "^0.2.7",
+    "@oceanprotocol/squid": "^0.3.0",
     "async": "^2.6.1",
     "body-parser": "^1.18.3",
     "compression": "^1.7.3",
@@ -44,7 +45,8 @@
     "request-ip": "^2.1.3",
     "require-reload": "^0.2.2",
     "rimraf": "^2.6.3",
-    "web3": "^1.0.0-beta.43"
+    "web3": "^1.0.0-beta.43",
+    "yaeti": "^1.0.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -62,7 +64,7 @@
     "eslint-config-prettier": "^4.0.0",
     "eslint-plugin-prettier": "^3.0.1",
     "istanbul": "^0.4.5",
-    "mocha": "^5.2.0",
+    "mocha": "^6.0.0",
     "mocked-env": "^1.2.4",
     "nodemon": "^1.18.9",
     "npm-run-all": "^4.1.5",
