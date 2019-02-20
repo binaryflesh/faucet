@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node dist/server.js",
-    "build": "rimraf ./dist && babel --out-dir ./dist --ignore node_modules ./",
+    "build": "rimraf ./dist && babel --out-dir ./dist --ignore node_modules --copy-files ./",
     "watch": "nodemon server.js --exec babel-node --presets babel-preset-env",
     "test": "npm run lint && mocha --require babel-register --require tests/env.js --timeout 20000 tests/test*.js --exit",
     "tests": "mocha --require babel-register --require tests/env.js --timeout 20000 tests/test*.js --exit",
