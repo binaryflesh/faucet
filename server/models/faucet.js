@@ -45,4 +45,4 @@ FaucetSchema.index({
     createdAt: 1
 })
 
-module.exports = exports = mongoose.model('Faucet', FaucetSchema)
+export default mongoose.model('Faucet', FaucetSchema)

@@ -6,27 +6,25 @@ import Faucet from '../models/faucet'
 import logger from '../utils/logger'
 import Web3Provider from '../utils/web3/Web3Provider'
 import moment from 'moment'
-var reload = require('require-reload')(require)
+import config from '../config'
 
 const OceanFaucet = {
     /**
      * Ocean Faucet request method
      */
-    request: (req, res) => {
+    requestCrypto: (address, agent, clientIp) => {
         return new Promise((resolve, reject) => {
-            let config = reload('../config').default
             Ocean.getInstance(config.oceanConfig)
                 .then(ocean => {
                     const web3 = Web3Provider.getWeb3(
                         config.oceanConfig.nodeUri
                     )
-                    const parameters = req.body
                     const faucetAddress = new Account(
                         config.oceanConfig.address
                     )
-                    const requestAddress = new Account(parameters.address)
+                    const requestAddress = new Account(address)
 
-                    logger.log(`Request Account: ${parameters.address}`)
+                    logger.log(`Request Account: ${address}`)
 
                     faucetAddress
                         .getBalance()
@@ -52,11 +50,11 @@ const OceanFaucet = {
                             }
 
                             const faucet = new Faucet({
-                                address: parameters.address.toUpperCase(),
-                                ipaddress: req.clientIp,
+                                address: address.toUpperCase(),
+                                ipaddress: clientIp,
                                 tokenAmount: config.oceanConfig.faucetTokens,
                                 ethAmount: config.oceanConfig.faucetEth,
-                                agent: parameters.agent || 'server'
+                                agent: agent || 'server'
                             })
 
                             if (
@@ -246,16 +244,15 @@ const OceanFaucet = {
      * Check if faucet request can be processed
      * @Param req http request
      */
-    isValidFaucetRequest: req => {
+    isValidFaucetRequest: (address, clientIp) => {
         return new Promise((resolve, reject) => {
-            let config = reload('../config').default
             Faucet.find({
                 $or: [
                     {
-                        address: req.body.address.toUpperCase()
+                        address: address.toUpperCase()
                     },
                     {
-                        ipaddress: req.clientIp
+                        ipaddress: clientIp
                     }
                 ]
             })

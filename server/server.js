@@ -1,50 +1,43 @@
-import path from 'path'
-import fs from 'fs'
 import express from 'express'
 import expressValidator from 'express-validator'
+import compression from 'compression'
+import mongoose from 'mongoose'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import requestIp from 'request-ip'
-// import net from 'net'
 import config from './config'
 import logger from './utils/logger'
-require('dotenv').config({
-    path: path.join(__dirname, '/.env')
-})
+
+import faucetRoutes from './routes/faucet'
 
 const app = express()
-
 app.use(cors())
+app.use(compression())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use(requestIp.mw())
 app.use(expressValidator())
+app.use('/', faucetRoutes)
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'))
-app.set('view engine', 'ejs')
-// set path for static assets
-app.use(express.static(path.join(__dirname, 'public')))
+mongoose
+    .connect(config.database.uri, {
+        useNewUrlParser: true,
+        useCreateIndex: true,
+        useFindAndModify: false
+    })
+    .catch(error => {
+        logger.error('Error connecting to database:')
+        logger.error(error)
+        process.exit(1)
+    })
 
-const server = app.listen(config.server.port, err => {
-    if (err) {
-        logger.error(err)
+const server = app.listen(config.server.port, error => {
+    if (error) {
+        logger.error('Error starting server:')
+        logger.error(error)
         process.exit(1)
     }
-
-    require('./utils/db')
-
-    /* eslint-disable security/detect-non-literal-fs-filename, security/detect-non-literal-require */
-    fs.readdirSync(path.join(__dirname, 'routes')).map(file => {
-        require('./routes/' + file)(app)
-    })
-    /* eslint-enable security/detect-non-literal-fs-filename, security/detect-non-literal-require */
-
-    logger.info(
-        `Ocean Faucet server is now running on port ${config.server.port} in ${
-            config.env
-        } mode`
-    )
+    logger.info(`Ocean Faucet server running on port ${config.server.port}`)
 })
 
-module.exports = server
+export default server

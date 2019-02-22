@@ -1,20 +1,21 @@
 version: '2.1'
 services:
 
-  mongodb:
-    container_name: mongodb
+  mongo:
     image: mongo:3.6
     ports:
-      - "27017:27017"
+      - 27017:27017
 
   faucet-server:
     container_name: faucet-server
     build: ./server
     ports:
-      - "3001:3001"
+      - 3001:3001
     environment:
-      NODE_ENV: production
-      MONGODB_URL: "mongodb://mongodb:27017/faucetdb"
+      DEBUG: "faucet:*"
+      NODE_ENV: "production"
+      SERVER_PORT: 3001
+      MONGO_URL: "mongodb://mongo:27017/faucetdb"
       FAUCET_TOKENS: 10
       FAUCET_TIMESPAN: 24
       KEEPER_URI: "http://keeper-node:8545"
@@ -26,7 +27,9 @@ services:
       ACCOUNT_PWD: "node0"
       ADDRESS: "0x00bd138abd70e2f00903268f3db08f2d25677c9e"
     depends_on:
-      - mongodb
+      - mongo
+    volumes:
+      - ~/.ocean/keeper-contracts/artifacts:/server/node_modules/@oceanprotocol/keeper-contracts/artifacts/:ro
 
 networks:
   default:
