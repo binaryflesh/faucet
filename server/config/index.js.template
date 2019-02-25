@@ -1,0 +1,22 @@
+export default {
+    env: '${NODE_ENV}',
+    server: {
+        port: '${SERVER_PORT}'
+    },
+    database: {
+        uri: '${MONGO_URL}'
+    },
+    oceanConfig: {
+        faucetTokens: '${FAUCET_TOKENS}',
+        faucetEth: '${FAUCET_ETH}',
+        faucetTimeSpan: '${FAUCET_TIMESPAN}',
+        nodeUri: '${KEEPER_URI}',
+        aquariusUri: '${AQUARIUS_URI}',
+        brizoUri: '${BRIZO_URI}',
+        parityUri: '${PARITY_URI}',
+        secretStoreUri: '${SECRETSTORE_URI}',
+        threshold: '${SECRETSTORE_THRESHOLD}',
+        password: '${ACCOUNT_PWD}',
+        address: '${ADDRESS}',
+    }
+}

@@ -1,0 +1,10 @@
+{
+  "verbose": true,
+  "ignore": ["tests/*", "node_modules/*", "dist/*"],
+  "env": {
+    "DEBUG": "*"
+  },
+  "execMap": {
+    "js": "babel-node --presets babel-preset-env"
+  }
+}

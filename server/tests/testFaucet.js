@@ -1,16 +1,15 @@
-/* eslint-disable no-console */
-
 import chai from 'chai'
 import chaiHttp from 'chai-http'
 import mockedEnv from 'mocked-env'
 import Faucet from '../models/faucet'
-var reload = require('require-reload')(require) // eslint-disable-line
+import decache from 'decache'
 
 chai.use(chaiHttp)
 
+let app = require('../server').default
+
 const { expect } = chai
 let restore
-let app
 
 describe('Test Faucet server requests', () => {
     before(() => {
@@ -18,14 +17,10 @@ describe('Test Faucet server requests', () => {
             ADDRESS: '0x00bd138abd70e2f00903268f3db08f2d25677c9e',
             NODE_ENV: 'test'
         })
-        app = require('../server')
     })
 
-    beforeEach(function() {
-        Faucet.remove({}, function(err) {
-            if (err) console.log('Error deleting faucet')
-            console.log('Cleaned DB for testing')
-        })
+    beforeEach(() => {
+        Faucet.deleteMany({}, () => {})
     })
 
     it('should not POST without an address', done => {
@@ -35,8 +30,8 @@ describe('Test Faucet server requests', () => {
         chai.request(app)
             .post('/faucet')
             .send(req)
-            .end(function(err, res) {
-                if (err) console.log(err)
+            .end((err, res) => {
+                expect(err).to.equal(null)
                 expect(res).to.have.status(400)
                 expect(res.body).not.equal(null)
                 expect(res.body.errors).not.equal(null)
@@ -55,8 +50,8 @@ describe('Test Faucet server requests', () => {
         chai.request(app)
             .post('/faucet')
             .send(req)
-            .end(function(err, res) {
-                if (err) console.log(err)
+            .end((err, res) => {
+                expect(err).to.equal(null)
                 expect(res).to.have.status(400)
                 expect(res.body).not.equal(null)
                 expect(res.body.errors).not.equal(null)
@@ -75,8 +70,8 @@ describe('Test Faucet server requests', () => {
         chai.request(app)
             .post('/faucet')
             .send(req)
-            .end(function(err, res) {
-                if (err) console.log(err)
+            .end((err, res) => {
+                expect(err).to.equal(null)
                 expect(res).to.have.status(200)
                 expect(res.body).to.not.be.null // eslint-disable-line no-unused-expressions
                 expect(res.body.message).to.eql(
@@ -94,8 +89,8 @@ describe('Test Faucet server requests', () => {
         chai.request(app)
             .post('/faucet')
             .send(req)
-            .end(function(err, res) {
-                if (err) console.log(err)
+            .end((err, res) => {
+                expect(err).to.equal(null)
                 expect(res.body).not.equal(null)
                 expect(res.body.message).to.eql(
                     '5 Ocean Tokens and 1 ETH were successfully deposited into your account'
@@ -105,8 +100,8 @@ describe('Test Faucet server requests', () => {
                 chai.request(app)
                     .post('/faucet')
                     .send(req)
-                    .end(function(err, res) {
-                        if (err) console.log(err)
+                    .end((err, res) => {
+                        expect(err).to.equal(null)
                         expect(res.body).not.equal(null)
                         expect(res.body.message).to.include(
                             'Tokens were last transferred to you'
@@ -122,17 +117,15 @@ describe('Test Faucet server requests', () => {
     })
 })
 
-describe('Test Faucet request using empty (no ETH funds) seed account', () => {
+describe('Test Faucet with empty seed account', () => {
     before(done => {
-        Faucet.remove({}, function(err) {
-            if (err) console.log('Error deleting faucet')
-            console.log('Cleaned DB for testing')
-            delete require.cache[require.resolve('../server')]
+        Faucet.deleteMany({}, () => {
             restore = mockedEnv({
                 ADDRESS: '0x10bd138abd70e2f00903268f3db08f2d25677c9d',
                 NODE_ENV: 'test'
             })
-            app = require('../server')
+            decache('../server')
+            app = require('../server').default
             done()
         })
     })
@@ -145,7 +138,7 @@ describe('Test Faucet request using empty (no ETH funds) seed account', () => {
             .post('/faucet')
             .send(req)
             .end(function(err, res) {
-                if (err) console.log(err)
+                expect(err).to.equal(null)
                 expect(res.body).not.equal(null)
                 expect(res.body.message).to.eql(
                     'Faucet server is not available (Seed account does not have enought funds to process the request)'
