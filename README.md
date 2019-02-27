@@ -94,7 +94,7 @@ export default {
 You can deploy the Faucet server using `docker-compose`:
 
 ```bash
-git clone https://github.com/oceanprotocol/faucet
+git clone https://github.com/oceanprotocol/faucet.git
 cd faucet
 docker-compose up
 ```
