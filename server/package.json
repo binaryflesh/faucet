@@ -4,10 +4,10 @@
   "description": "Ocean Protocol Faucet Server for testnet",
   "main": "server.js",
   "scripts": {
-    "start": "./scripts/copy-artifacts.sh && DEBUG=faucet:* node dist/server.js",
+    "start": "DEBUG=faucet:* node dist/server.js",
     "build": "rimraf ./dist && babel --out-dir ./dist --ignore node_modules ./",
-    "watch": "./scripts/copy-artifacts.sh && nodemon server.js",
-    "test": "./scripts/copy-artifacts.sh && npm run lint && mocha --require babel-register --require tests/env.js --timeout 20000 tests/test*.js --exit",
+    "watch": "nodemon server.js",
+    "test": "npm run lint && mocha --require babel-register --require tests/env.js --timeout 20000 tests/test*.js --exit",
     "tests": "mocha --require babel-register --require tests/env.js --timeout 20000 tests/test*.js --exit",
     "coverage": "nyc --reporter=lcov --reporter=text-lcov npm test",
     "cov-report": "nyc report",
