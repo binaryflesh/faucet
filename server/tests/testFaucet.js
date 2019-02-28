@@ -2,7 +2,7 @@ import chai from 'chai'
 import chaiHttp from 'chai-http'
 import mockedEnv from 'mocked-env'
 import Faucet from '../models/faucet'
-import decache from 'decache'
+// import decache from 'decache'
 
 chai.use(chaiHttp)
 
@@ -63,7 +63,7 @@ describe('Test Faucet server requests', () => {
             })
     })
 
-    it('should Deposit 5 Ocean Tokens and 1 ETH', done => {
+    it('should send 3 ETH', done => {
         let req = {
             address: '0x1F08a98e53b2bDd0E6aE8E1140017e26E935780D'
         }
@@ -74,9 +74,7 @@ describe('Test Faucet server requests', () => {
                 expect(err).to.equal(null)
                 expect(res).to.have.status(200)
                 expect(res.body).to.not.be.null // eslint-disable-line no-unused-expressions
-                expect(res.body.message).to.eql(
-                    '5 Ocean Tokens and 1 ETH were successfully deposited into your account'
-                )
+                expect(res.body.status).to.eql('success')
                 expect(res.body.record).to.not.be.null // eslint-disable-line no-unused-expressions
                 done()
             })
@@ -92,9 +90,7 @@ describe('Test Faucet server requests', () => {
             .end((err, res) => {
                 expect(err).to.equal(null)
                 expect(res.body).not.equal(null)
-                expect(res.body.message).to.eql(
-                    '5 Ocean Tokens and 1 ETH were successfully deposited into your account'
-                )
+                expect(res.body.status).to.eql('success')
                 expect(res).to.have.status(200)
 
                 chai.request(app)
@@ -103,10 +99,10 @@ describe('Test Faucet server requests', () => {
                     .end((err, res) => {
                         expect(err).to.equal(null)
                         expect(res.body).not.equal(null)
-                        expect(res.body.message).to.include(
+                        expect(res.body.error).to.include(
                             'Tokens were last transferred to you'
                         )
-                        expect(res).to.have.status(400)
+                        expect(res).to.have.status(500)
                         done()
                     })
             })
@@ -116,7 +112,7 @@ describe('Test Faucet server requests', () => {
         restore()
     })
 })
-
+/*
 describe('Test Faucet with empty seed account', () => {
     before(done => {
         Faucet.deleteMany({}, () => {
@@ -140,11 +136,14 @@ describe('Test Faucet with empty seed account', () => {
             .end(function(err, res) {
                 expect(err).to.equal(null)
                 expect(res.body).not.equal(null)
-                expect(res.body.message).to.eql(
+                expect(res.body).to.eql(
+                    'Faucet server is not available (Seed account does not have enought funds to process the request)'
+                )
+                expect(res.body.error).to.eql(
                     'Faucet server is not available (Seed account does not have enought funds to process the request)'
                 )
                 expect(res).to.have.status(500)
                 done()
             })
     })
-})
+}) */

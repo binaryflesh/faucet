@@ -5,6 +5,7 @@ import logger from '../utils/logger'
 import Web3Provider from '../utils/web3/Web3Provider'
 import moment from 'moment'
 import config from '../config'
+import BigNumber from 'bignumber.js'
 
 const web3 = Web3Provider.getWeb3(config.oceanConfig.nodeUri)
 const amountToTransfer = web3.utils.toWei(config.server.faucetEth.toString())
@@ -17,9 +18,11 @@ const OceanFaucet = {
      */
     requestCrypto: async (requestAddress, agent) => {
         const balance = await web3.eth.getBalance(config.server.faucetAddress)
-        if (balance < amountToTransfer) {
+        if (
+            new BigNumber(balance).isLessThan(new BigNumber(amountToTransfer))
+        ) {
             throw new Error(
-                'Faucet server is not available (Seed account does not have enought ETH to process the request)'
+                `Faucet server is not available ${config.server.faucetAddress}`
             )
         }
         const doc = await Faucet.findOneAndUpdate(
