@@ -4,7 +4,6 @@ import compression from 'compression'
 import mongoose from 'mongoose'
 import cors from 'cors'
 import bodyParser from 'body-parser'
-import requestIp from 'request-ip'
 import config from './config'
 import logger from './utils/logger'
 
@@ -15,7 +14,6 @@ app.use(cors())
 app.use(compression())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-app.use(requestIp.mw())
 app.use(expressValidator())
 app.use('/', faucetRoutes)
 

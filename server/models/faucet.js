@@ -9,10 +9,6 @@ export const FaucetSchema = new Schema(
             trim: true,
             required: true
         },
-        tokenAmount: {
-            type: Number,
-            required: true
-        },
         ethAmount: {
             type: Number,
             required: true
@@ -22,15 +18,20 @@ export const FaucetSchema = new Schema(
             trim: true,
             required: false
         },
-        ipaddress: {
+        error: {
             type: String,
             trim: true,
-            required: true
+            required: false
         },
         agent: {
             type: String,
             trim: true,
             required: false
+        },
+        insert: {
+            type: Number,
+            trim: true,
+            required: true
         }
     },
     {

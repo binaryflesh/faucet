@@ -1,300 +1,126 @@
 /* eslint-disable prefer-promise-reject-errors */
 
-import { Ocean, Account } from '@oceanprotocol/squid'
-import Keeper from '@oceanprotocol/squid/dist/node/keeper/Keeper'
 import Faucet from '../models/faucet'
 import logger from '../utils/logger'
 import Web3Provider from '../utils/web3/Web3Provider'
 import moment from 'moment'
 import config from '../config'
 
+const web3 = Web3Provider.getWeb3(config.oceanConfig.nodeUri)
+const amountToTransfer = web3.utils.toWei(config.server.faucetEth.toString())
+
 const OceanFaucet = {
     /**
      * Ocean Faucet request method
+     * @Param address faucet tokens recipient
+     * @Param agent
      */
-    requestCrypto: (address, agent, clientIp) => {
-        return new Promise((resolve, reject) => {
-            Ocean.getInstance(config.oceanConfig)
-                .then(ocean => {
-                    const web3 = Web3Provider.getWeb3(
-                        config.oceanConfig.nodeUri
-                    )
-                    const faucetAddress = new Account(
-                        config.oceanConfig.address
-                    )
-                    const requestAddress = new Account(address)
-
-                    logger.log(`Request Account: ${address}`)
-
-                    faucetAddress
-                        .getBalance()
-                        .then(balance => {
-                            logger.log(
-                                `Faucet Current Ether Balance: ${balance.eth}`
-                            )
-                            logger.log(
-                                `Faucet Current Ocean Balance: ${balance.ocn}`
-                            )
-
-                            // verify that current ETH balance is greater than requested + 1ETH extra as threshold
-                            // An alert to admin should be included
-                            if (
-                                balance.eth <
-                                (config.oceanConfig.faucetEth + 1) * 10 ** 18
-                            ) {
-                                reject({
-                                    sucess: false,
-                                    message:
-                                        'Faucet server is not available (Seed account does not have enought funds to process the request)'
-                                })
-                            }
-
-                            const faucet = new Faucet({
-                                address: address.toUpperCase(),
-                                ipaddress: clientIp,
-                                tokenAmount: config.oceanConfig.faucetTokens,
-                                ethAmount: config.oceanConfig.faucetEth,
-                                agent: agent || 'server'
-                            })
-
-                            if (
-                                balance.ocn >= config.oceanConfig.faucetTokens
-                            ) {
-                                OceanFaucet.transferTokens(
-                                    ocean,
-                                    web3,
-                                    faucetAddress,
-                                    requestAddress,
-                                    config.oceanConfig.faucetTokens,
-                                    config.oceanConfig.faucetEth * 10 ** 18,
-                                    faucet,
-                                    resolve,
-                                    reject
-                                )
-                            } else {
-                                faucetAddress
-                                    .requestTokens(
-                                        config.oceanConfig.faucetTokens
-                                    )
-                                    .then(rs => {
-                                        logger.log(
-                                            `Success requesting tokens to OceanMarket for faucet address ${
-                                                faucetAddress.id
-                                            }`
-                                        )
-                                        OceanFaucet.transferTokens(
-                                            ocean,
-                                            web3,
-                                            faucetAddress,
-                                            requestAddress,
-                                            config.oceanConfig.faucetTokens,
-                                            config.oceanConfig.faucetEth *
-                                                10 ** 18,
-                                            faucet,
-                                            resolve,
-                                            reject
-                                        )
-                                    })
-                                    .catch(err => {
-                                        const errorMsg = `Error while tryng to request tokens to OceanMarket ${err}`
-                                        logger.error(errorMsg)
-                                        reject({
-                                            sucess: false,
-                                            message: errorMsg
-                                        })
-                                    })
-                            }
-                        })
-                        .catch(error => {
-                            const errorMsg = `Error when trying to connect to Ocean Protocol: ${error}`
-                            logger.error(errorMsg)
-                            reject({
-                                sucess: false,
-                                message: errorMsg
-                            })
-                        })
-                })
-                .catch(error => {
-                    const errorMsg = `Error when trying to connect to Ocean Protocol: ${error}`
-                    logger.error(errorMsg)
-                    reject({
-                        sucess: false,
-                        message: errorMsg
-                    })
-                })
-        })
-    },
-
-    /**
-     * Function to transfer Ocean tokens and ETH to requestAddress
-     * @Param ocean Ocean Protocol instance
-     * @Param web3 Web3 instance
-     * @Param faucetAddress server faucet address
-     * @Param requestAddress faucet tokens recipient
-     * @Param tokenAmount Ocean tokens to be transfered
-     * @Param ethAmount ETH amount to transfer
-     * @Param faucet faucet record
-     * @Param resolve
-     * @Param reject
-     */
-    transferTokens: (
-        ocean,
-        web3,
-        faucetAddress,
-        requestAddress,
-        tokenAmount,
-        ethAmount,
-        faucet,
-        resolve,
-        reject
-    ) => {
-        // sending Ocean tokens
-        // TODO: replace when in squid-js
-        Keeper.getInstance().then(keeper => {
-            keeper.token.contract.methods
-                .transfer(requestAddress.id, tokenAmount)
-                .send({ from: faucetAddress.id })
-                .then(rs => {
-                    logger.log(
-                        `Success sending ${tokenAmount} OceanTokens to ${
-                            requestAddress.id
-                        }`
-                    )
-
-                    faucet.save((error, record) => {
-                        if (error) {
-                            logger.log(error)
-                        }
-
-                        // sending ETH
-                        web3.eth
-                            .sendTransaction({
-                                from: faucetAddress.id,
-                                to: requestAddress.id,
-                                value: ethAmount
-                            })
-                            .on('transactionHash', hash => {
-                                logger.log(`ETH transaction hash ${hash}`)
-                                const newData = {
-                                    ethTrxHash: hash
-                                }
-                                Faucet.findOneAndUpdate(
-                                    {
-                                        _id: record._id
-                                    },
-                                    newData,
-                                    (err, rec) => {
-                                        if (err)
-                                            logger.log(
-                                                `Failed updating faucet record ${err}`
-                                            )
-                                    }
-                                )
-                            })
-                            .on('error', err => {
-                                logger.log(`ETH transaction failed! ${err}`)
-                                const newData = {
-                                    ethTrxHash: err
-                                }
-                                Faucet.findOneAndUpdate(
-                                    {
-                                        _id: record._id
-                                    },
-                                    newData,
-                                    (err, rec) => {
-                                        if (err)
-                                            logger.log(
-                                                `Failed updating faucet record ${err}`
-                                            )
-                                    }
-                                )
-                            })
-                        requestAddress
-                            .getOceanBalance()
-                            .then(balance =>
-                                logger.log(
-                                    `Recipient Ocean Balance: ${balance}`
-                                )
-                            )
-                            .catch(err => logger.error(err))
-
-                        resolve({
-                            sucess: true,
-                            message: `${tokenAmount} Ocean Tokens and ${ethAmount /
-                                10 **
-                                    18} ETH were successfully deposited into your account`,
-                            record: record._id
-                        })
-                    })
-                })
-                .catch(err => {
-                    const errorMsg = `Error while tryng to send tokens to ${
-                        requestAddress.id
-                    }: ${err}`
-                    logger.error(errorMsg)
-                    reject({
-                        sucess: false,
-                        message: errorMsg
-                    })
-                })
-        })
-    },
-
-    /**
-     * Check if faucet request can be processed
-     * @Param req http request
-     */
-    isValidFaucetRequest: (address, clientIp) => {
-        return new Promise((resolve, reject) => {
-            Faucet.find({
-                $or: [
+    requestCrypto: async (requestAddress, agent) => {
+        const balance = await web3.eth.getBalance(config.server.faucetAddress)
+        if (balance < amountToTransfer) {
+            throw new Error(
+                'Faucet server is not available (Seed account does not have enought ETH to process the request)'
+            )
+        }
+        const doc = await Faucet.findOneAndUpdate(
+            {
+                $and: [
                     {
-                        address: address.toUpperCase()
+                        createdAt: {
+                            $gt: new Date(Date.now() - 24 * 60 * 60 * 1000)
+                        }
                     },
                     {
-                        ipaddress: clientIp
+                        $or: [
+                            {
+                                address: requestAddress.toUpperCase()
+                            }
+                        ]
                     }
                 ]
-            })
-                .sort('-createdAt')
-                .exec((err, data) => {
-                    if (err)
-                        reject({
-                            statusCode: 500,
-                            result: {
-                                success: false,
-                                message: err
-                            }
-                        })
-                    if (data && data.length > 0) {
-                        const lastRequest = moment(
-                            data[0].createdAt,
-                            'YYYY-MM-DD HH:mm:ss'
-                        ).add(config.oceanConfig.faucetTimeSpan, 'h')
-                        const reqTimestamp = moment()
-                        const diff = lastRequest.diff(reqTimestamp)
-                        if (diff > 0) {
-                            const diffStr = moment
-                                .utc(lastRequest.diff(reqTimestamp))
-                                .format('HH:mm:ss')
-                            const errorMsg =
-                                `Tokens were last transferred to you ${diffStr} ago. ` +
-                                `Faucet requests can be done every ${
-                                    config.oceanConfig.faucetTimeSpan
-                                } hours`
-                            reject({
-                                statusCode: 400,
-                                result: {
-                                    success: false,
-                                    message: errorMsg
-                                }
-                            })
-                        } else {
+            },
+            {
+                $setOnInsert: {
+                    address: requestAddress.toUpperCase(),
+                    ethAmount: config.server.faucetEth,
+                    agent: agent || 'server'
+                },
+                $inc: { insert: 1 }
+            },
+            {
+                upsert: true,
+                new: true
+            }
+        )
+        if (doc.insert !== 1) {
+            const lastRequest = moment(
+                doc.createdAt,
+                'YYYY-MM-DD HH:mm:ss'
+            ).add(config.server.faucetTimeSpan, 'h')
+            const reqTimestamp = moment()
+            const diffStr = moment
+                .utc(lastRequest.diff(reqTimestamp))
+                .format('HH:mm:ss')
+            const errorMsg =
+                `Tokens were last transferred to you ${diffStr} ago. ` +
+                `Faucet requests can be done every ${
+                    config.server.faucetTimeSpan
+                } hours`
+            throw new Error(errorMsg)
+        }
+        const recordId = doc._id
+        await OceanFaucet.transferEther(requestAddress, recordId)
+    },
+
+    /**
+     * Function to transfer ETH to requestAddress
+     * @Param ocean Ocean Protocol instance
+     * @Param requestAddress faucet tokens recipient
+     * @Param faucet record _id
+     */
+    transferEther: (requestAddress, recordId) => {
+        return new Promise((resolve, reject) => {
+            web3.eth
+                .sendTransaction({
+                    from: config.server.faucetAddress,
+                    to: requestAddress,
+                    value: amountToTransfer
+                })
+                .on('transactionHash', hash => {
+                    logger.log(`ETH transaction hash ${hash}`)
+                    Faucet.findOneAndUpdate(
+                        {
+                            _id: recordId
+                        },
+                        {
+                            ethTrxHash: hash
+                        },
+                        (err, rec) => {
+                            if (err)
+                                logger.error(
+                                    `Failed updating faucet record ${err}`
+                                )
                             resolve()
                         }
-                    } else {
-                        resolve()
-                    }
+                    )
+                })
+                .on('error', err => {
+                    logger.error(`ETH transaction failed! ${err}`)
+                    Faucet.findOneAndUpdate(
+                        {
+                            _id: recordId
+                        },
+                        {
+                            error: err
+                        },
+                        (err, rec) => {
+                            if (err)
+                                logger.error(
+                                    `Failed updating faucet record ${err}`
+                                )
+                            resolve()
+                        }
+                    )
                 })
         })
     },

@@ -36,7 +36,7 @@ faucetRoutes.post(
             }
         })
     ],
-    (req, res) => {
+    async (req, res) => {
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
             res.status(400).json({
@@ -45,17 +45,15 @@ faucetRoutes.post(
                 errors: errors.array()
             })
         } else {
-            OceanFaucet.isValidFaucetRequest(req.body.address, req.clientIp)
-                .then(() => {
-                    OceanFaucet.requestCrypto(
-                        req.body.address,
-                        req.body.agent,
-                        req.clientIp
-                    )
-                        .then(response => res.status(200).json(response))
-                        .catch(error => res.status(500).json(error))
-                })
-                .catch(error => res.status(error.statusCode).json(error.result))
+            try {
+                await OceanFaucet.requestCrypto(
+                    req.body.address,
+                    req.body.agent
+                )
+                res.status(200).json({ status: 'success' })
+            } catch (error) {
+                res.status(500).json({ error: error.message })
+            }
         }
     }
 )
