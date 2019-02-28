@@ -40,7 +40,7 @@ The Ocean Faucet Server allows users to request Ocean Tokens and Ether for a par
 Before deploying an instance of the Faucet server, you need to deploy some other stuff using [Barge](https://github.com/oceanprotocol/barge):
 
 ```bash
-git clone https://github.com/oceanprotocol/barge
+git clone https://github.com/oceanprotocol/barge.git
 cd barge
 ./start_ocean.sh --latest --local-nile-node --no-pleuston --force-pull
 ```
