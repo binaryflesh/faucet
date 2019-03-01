@@ -17,5 +17,3 @@ if [ $COMMAND_STATUS -ne 0 ]; then
   echo "Waited for more than two minutes, but keeper contracts have not been migrated yet. Did you run an Ethereum RPC client and the migration script?"
   exit 1
 fi
-
-docker cp ${keeper_contracts_docker_id}:/keeper-contracts/artifacts/. ./node_modules/@oceanprotocol/keeper-contracts/artifacts/
