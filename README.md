@@ -2,7 +2,7 @@
 
 <h1 align="center">Faucet Server</h1>
 
-The Ocean Faucet Server allows users to request Ocean Tokens and Ether for a particular Ethereum network.
+The Ocean Faucet Server allows users to request Ether for a particular Ethereum network.
 
 [![Build Status](https://travis-ci.com/oceanprotocol/faucet&branch=master)](https://travis-ci.com/oceanprotocol/faucet)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-7b1173.svg?style=flat-square)](https://github.com/prettier/prettier)
@@ -42,7 +42,7 @@ Before deploying an instance of the Faucet server, you need to deploy some other
 ```bash
 git clone https://github.com/oceanprotocol/barge
 cd barge
-./start_ocean.sh --latest --local-nile-node --no-pleuston --force-pull
+./start_ocean.sh --latest --local-spree-node --no-pleuston --force-pull
 ```
 
 ### Configuration
@@ -53,22 +53,16 @@ You need to set some configuration settings in the file [server/config/index.js]
 export default {
   env: process.env.NODE_ENV || 'development',
   server: {
-    port: 3001
-  },
-  logger: {
-    host: process.env.LOGGER_HOST, // Papertrail Logging Host
-    port: process.env.LOGGER_PORT, // Papertrail Logging Port
+    port: 3001,
+    faucetEth: 3,
+    faucetTimeSpan: 24,
+    faucetAddress: '0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e',
+    faucetPassword: 'node0'
   },
   database: {
     uri: process.env.MONGODB_URL || "mongodb://localhost:27017/faucetdb"
   },
   oceanConfig: {
-    // tokens per request
-    faucetTokens: process.env.FAUCET_TOKENS || 10,
-    // ETH per request
-    faucetEth: process.env.FAUCET_ETH || 3,
-    // timespan between requests (in hours)
-    faucetTimeSpan: process.env.FAUCET_TIMESPAN || 24,
     // the node of the blockchain to connect to, could also be infura
     nodeUri: process.env.KEEPER_URI || "http://localhost:8545",
     // the uri of aquarius
@@ -101,7 +95,7 @@ docker-compose up
 
 ### Example
 
-To request Ocean Tokens and Ether, a user can send an HTTP POST request to http://localhost:3001/faucet with an HTTP request body like:
+To request Ether, a user can send an HTTP POST request to http://localhost:3001/faucet with an HTTP request body like:
 
 ```js
 {
@@ -110,7 +104,7 @@ To request Ocean Tokens and Ether, a user can send an HTTP POST request to http:
 }
 ```
 
-The amount of Ocean Tokens and the amount of Ether are determined by the values of the configuration settings `oceanConfig.faucetTokens` and `oceanConfig.faucetEth`, respectively.
+The amount of Ocean Tokens and the amount of Ether are determined by the values of the configuration settings `ocean.server.faucetEth`.
 
 An example HTTP POST request using `wget`:
 
@@ -124,8 +118,7 @@ Sample Response Body:
 
 ```js
 {
-    "success": true,
-    "message": "10 Ocean Tokens and 3 ETH were successfully deposited into your account"  
+    "success": true
 }
 ```
 
@@ -134,6 +127,7 @@ Sample Response Body:
 To start development you need to:
 
 ```bash
+docker-compose up -d mongo
 cd server
 npm install
 npm start watch
@@ -144,6 +138,7 @@ npm start watch
 To start unit tests you need to:
 
 ```bash
+docker-compose up -d mongo
 cd server
 npm run test
 ```
@@ -151,6 +146,7 @@ npm run test
 To get a test coverage report:
 
 ```bash
+docker-compose up -d mongo
 cd server
 npm run coverage
 npm run cov-report
