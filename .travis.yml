@@ -26,6 +26,7 @@ before_script:
   - npm install
 
 script:
+  - ./scripts/wait_for_migration_and_extract_keeper_artifacts.sh
   - npm test
   - npm run build
 

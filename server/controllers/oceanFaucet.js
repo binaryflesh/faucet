@@ -22,7 +22,7 @@ const OceanFaucet = {
             new BigNumber(balance).isLessThan(new BigNumber(amountToTransfer))
         ) {
             throw new Error(
-                `Faucet server is not available ${config.server.faucetAddress}`
+                `Faucet server is not available (Seed account does not have enought ETH to process the request)`
             )
         }
         const doc = await Faucet.findOneAndUpdate(
